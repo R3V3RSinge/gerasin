@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from backend.db import engine, get_session
 from backend.models import Base
-from backend.api import user_router
+from backend.api import user_router, pa_router
 from backend.repositories import UserRepository
 import os
 from dotenv import load_dotenv
@@ -24,7 +24,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.include_router(user_router)
-
+app.include_router(pa_router)
 
 async def init_db():
     async with engine.begin() as conn:
