@@ -2,11 +2,16 @@ from datetime import datetime
 from pydantic import BaseModel, Field
 from typing import Optional
 
-
 class PasswordEntryCreate(BaseModel):
     website: str = Field(..., max_length=255)
     username: Optional[str] = Field(None, max_length=255)
     password: str
+    notes: Optional[str] = None
+
+class PasswordEntryUpdate(BaseModel):
+    website: Optional[str] = Field(None, max_length=255)
+    username: Optional[str] = Field(None, max_length=255)
+    password: Optional[str] = None
     notes: Optional[str] = None
 
 class PasswordEntryResponse(BaseModel):

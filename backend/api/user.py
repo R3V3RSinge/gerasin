@@ -64,3 +64,4 @@ async def logout(
     expires_at = datetime.fromtimestamp(payload.get("exp"))
     await RevokedTokenRepository.revoke_token(session, token, expires_at)
     return {"message": "Successfully logged out"}
+

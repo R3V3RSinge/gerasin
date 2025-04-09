@@ -1,5 +1,6 @@
 import flet as ft
 from api.client import AuthAPI
+from frontend.views.passo_views import AddPasswordPage, PasswordListPage, PasswordDetailPage
 from views.auth_views import LoginRegisterPage, dashboard_page
 
 
@@ -19,11 +20,60 @@ def main(page: ft.Page):
         page.views.clear()
 
         if e.route == "/dashboard":
-            view = ft.View("/dashboard", [dashboard_page(page, auth_api)])
-        else:
-            view = ft.View("/", [LoginRegisterPage(page, auth_api).view])
+            page.views.append(
+                ft.View("/dashboard", [dashboard_page(page, auth_api)])
+            )
+        elif e.route.startswith("/password/"):
+            entry_id = int(e.route.split("/")[-1])  # Извлекаем ID из URL
+            page.views.append(
+                ft.View(
+                    e.route,
+                    [PasswordDetailPage(page, entry_id).view],
+                    padding=20,
+                    appbar=ft.AppBar(
+                        title=ft.Text("Детали пароля"),
+                        leading=ft.IconButton(
+                            icon=ft.icons.ARROW_BACK,
+                            on_click=lambda _: page.go("/passwords")
+                        )
+                    )
+                )
+            )
 
-        page.views.append(view)
+        elif e.route == "/passwords":
+            page.views.append(
+                ft.View(
+                    "/passwords",
+                    [PasswordListPage(page, auth_api).view],
+                    padding=20,
+                    appbar=ft.AppBar(
+                        title=ft.Text("Мои пароли"),
+                        actions=[
+                            ft.IconButton(
+                                icon=ft.icons.ADD,
+                                on_click=lambda _: page.go("/add_password"),
+                                tooltip="Добавить пароль"
+                            )
+                        ]
+                    )
+                )
+            )
+        elif e.route == "/add_password":
+            page.views.append(
+                ft.View(
+                    "/add_password",
+                    [AddPasswordPage(page).view],
+                    padding=20,
+                    appbar=ft.AppBar(
+                        title=ft.Text("Добавить новый пароль"),
+                    )
+                )
+            )
+        else:
+            page.views.append(
+                ft.View("/", [LoginRegisterPage(page, auth_api).view])
+            )
+
         page.update()
 
     page.on_route_change = route_change

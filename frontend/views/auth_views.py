@@ -283,17 +283,87 @@ def dashboard_page(page: ft.Page, auth_api: AuthAPI):
         page.go("/")
         return ft.Column()
 
-    return ft.Column(
-        [
-            ft.Text(f"Добро пожаловать, {user_data.get('email', '')}!", size=24),
-            ft.ElevatedButton(
-                "Выйти",
-                on_click=lambda e: logout_click(page),
-                icon=ft.icons.LOGOUT_OUTLINED,
-            ),
-        ],
-        spacing=20,
-        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+    welcome_text = ft.Text(
+        f"Добро пожаловать, {user_data.get('email', '')}!",
+        size=24,
+        weight="bold",
+        text_align=ft.TextAlign.CENTER,
+        color=ft.colors.BLUE_900,
+        font_family="RobotoBold"
+    )
+
+    description = ft.Text(
+        "Выберите действие:",
+        size=18,
+        color=ft.colors.GREY_600,
+        text_align=ft.TextAlign.CENTER,
+    )
+
+    password_button = ft.ElevatedButton(
+        "🔑 Управление паролями",
+        icon=ft.icons.LOCK_OUTLINED,
+        on_click=lambda e: page.go("/passwords"),
+        width=320,
+        height=60,
+        style=ft.ButtonStyle(
+            shape=ft.RoundedRectangleBorder(radius=14),
+            bgcolor=ft.colors.BLUE_600,
+            color=ft.colors.WHITE,
+            padding=15
+        ),
+    )
+
+    logout_button = ft.ElevatedButton(
+        "🚪 Выйти из системы",
+        icon=ft.icons.LOGOUT_OUTLINED,
+        on_click=lambda e: logout_click(page),
+        width=320,
+        height=60,
+        style=ft.ButtonStyle(
+            shape=ft.RoundedRectangleBorder(radius=14),
+            bgcolor=ft.colors.GREY_300,
+            color=ft.colors.BLACK87,
+            padding=15
+        ),
+    )
+
+    card = ft.Container(
+        content=ft.Column(
+            [
+                ft.Icon(ft.icons.SECURITY_ROUNDED, size=60, color=ft.colors.BLUE_700),
+                welcome_text,
+                description,
+                ft.Divider(height=30),
+                password_button,
+                logout_button,
+            ],
+            spacing=20,
+            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+            width=400
+        ),
+        padding=40,
+        bgcolor=ft.colors.WHITE,
+        border_radius=25,
+        shadow=ft.BoxShadow(
+            spread_radius=2,
+            blur_radius=20,
+            color=ft.colors.BLUE_100,
+            offset=ft.Offset(3, 6),
+
+        ),
+        alignment=ft.alignment.center,
+        expand=True
+    )
+
+    return ft.Container(
+        content=card,
+        alignment=ft.alignment.center,
+        expand=True,
+        gradient=ft.LinearGradient(
+            begin=ft.alignment.top_center,
+            end=ft.alignment.bottom_center,
+            colors=[ft.colors.BLUE_50, ft.colors.WHITE]
+        )
     )
 
 

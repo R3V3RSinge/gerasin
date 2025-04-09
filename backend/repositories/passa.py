@@ -2,7 +2,7 @@ from cryptography.fernet import Fernet
 import os
 
 from dotenv import load_dotenv
-from sqlalchemy import select
+from sqlalchemy import select, delete, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.models import PasswordEntry
@@ -11,7 +11,7 @@ from backend.schemas import PasswordEntryCreate
 load_dotenv()
 
 class PasswordRepository:
-    _fernet = Fernet("W9Er9gRuwAQRM4AtdBX5cQ_5Z-3XZ3bwM5SZ3yH0z2Q=")  # Добавьте ENCRYPTION_KEY в .env
+    _fernet = Fernet("W9Er9gRuwAQRM4AtdBX5cQ_5Z-3XZ3bwM5SZ3yH0z2Q=")
 
     @classmethod
     def _encrypt_password(cls, password: str) -> bytes:
@@ -61,3 +61,43 @@ class PasswordRepository:
     @staticmethod
     async def decrypt_entry_password(entry: PasswordEntry) -> str:
         return PasswordRepository._decrypt_password(entry.encrypted_password)
+
+    @staticmethod
+    async def update_password_entry(
+            session: AsyncSession,
+            entry_id: int,
+            user_id: int,
+            update_data: dict
+    ):
+        if 'password' in update_data:
+            update_data['encrypted_password'] = PasswordRepository._encrypt_password(update_data.pop('password'))
+
+        stmt = (
+            update(PasswordEntry)
+            .where(
+                (PasswordEntry.id_entry == entry_id) &
+                (PasswordEntry.id_user == user_id)
+            )
+            .values(**update_data)
+            .returning(PasswordEntry)
+        )
+
+        result = await session.execute(stmt)
+        await session.commit()
+        return result.scalar_one()
+
+    @staticmethod
+    async def delete_password_entry(
+            session: AsyncSession,
+            entry_id: int,
+            user_id: int
+    ):
+        stmt = (
+            delete(PasswordEntry)
+            .where(
+                (PasswordEntry.id_entry == entry_id) &
+                (PasswordEntry.id_user == user_id)
+            )
+        )
+        await session.execute(stmt)
+        await session.commit()
